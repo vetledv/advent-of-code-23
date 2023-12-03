@@ -34,11 +34,12 @@ const Game = struct {
         return game;
     }
 
-    fn max(self: *Self, s: Self) void {
+    fn min_cubes(self: *Self, s: Self) void {
         self.r = if (self.r > s.r) self.r else s.r;
         self.g = if (self.g > s.g) self.g else s.g;
         self.b = if (self.b > s.b) self.b else s.b;
     }
+
     fn power(self: Self) u32 {
         return self.r * self.g * self.b;
     }
@@ -59,11 +60,11 @@ pub fn main() !void {
         var games = mem.splitSequence(u8, parts.next().?, "; ");
 
         var possible: bool = true;
-        var mg = Game{ .r = 0, .b = 0, .g = 0 };
+        var min_game = Game{ .r = 0, .b = 0, .g = 0 };
 
         while (games.next()) |game| {
             const g = try Game.parse(game);
-            mg.max(g);
+            min_game.min_cubes(g);
             if (!g.is_possible()) {
                 possible = false;
             }
@@ -71,7 +72,7 @@ pub fn main() !void {
         if (possible) {
             part1_sum += id;
         }
-        part2_sum += mg.power();
+        part2_sum += min_game.power();
     }
     dprint("day 02\n", .{});
     dprint("\t1: {d}\n", .{part1_sum});
