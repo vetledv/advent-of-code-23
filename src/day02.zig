@@ -13,9 +13,6 @@ const Game = struct {
 
     const Self = @This();
 
-    fn asd(self: Self) bool {
-        return (self.r > 12 or self.g > 13 or self.b > 14);
-    }
     fn is_possible(self: Self) bool {
         return self.r <= 12 and self.g <= 13 and self.b <= 14;
     }
@@ -27,11 +24,11 @@ const Game = struct {
             const num = fmt.parseInt(u16, cn.next().?, 10) catch 0;
             const color = cn.next().?;
             if (mem.eql(u8, color, "red")) {
-                game.r += num;
+                game.r = num;
             } else if (mem.eql(u8, color, "green")) {
-                game.g += num;
+                game.g = num;
             } else if (mem.eql(u8, color, "blue")) {
-                game.b += num;
+                game.b = num;
             }
         }
         return game;
@@ -45,7 +42,7 @@ pub fn main() !void {
         var _line = line;
         //kill me, delete windows
         if (@import("builtin").os.tag == .windows) {
-            _line = std.mem.trimRight(u8, line, "\r");
+            _line = mem.trimRight(u8, line, "\r");
         }
         var parts = mem.splitSequence(u8, _line, ": ");
         const id = fmt.parseInt(u16, parts.next().?[5..], 10) catch 0;
@@ -63,14 +60,4 @@ pub fn main() !void {
     }
     dprint("day 02\n", .{});
     dprint("\t1: {d}\n", .{part1_sum});
-}
-
-pub fn readLine(reader: anytype, buffer: []u8) !?[]const u8 {
-    const line = (try reader.readUntilDelimiterOrEof(buffer, '\n')) orelse return null;
-
-    if (@import("builtin").os.tag == .windows) {
-        return std.mem.trimRight(u8, line, "\r");
-    }
-
-    return line;
 }
