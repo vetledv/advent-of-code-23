@@ -13,14 +13,17 @@ const Game = struct {
 
     const Self = @This();
 
+    fn asd(self: Self) bool {
+        return (self.r > 12 or self.g > 13 or self.b > 14);
+    }
     fn is_possible(self: Self) bool {
         return self.r <= 12 and self.g <= 13 and self.b <= 14;
     }
     fn parse(line: []const u8) !Self {
         var game = Self{ .r = 0, .g = 0, .b = 0 };
-        var rgb = mem.tokenizeSequence(u8, line, ", ");
+        var rgb = mem.splitSequence(u8, line, ", ");
         while (rgb.next()) |cc| {
-            var cn = mem.splitScalar(u8, cc, ' ');
+            var cn = mem.splitSequence(u8, cc, " ");
             const num = fmt.parseInt(u16, cn.next().?, 10) catch 0;
             const color = cn.next().?;
             if (mem.eql(u8, color, "red")) {
@@ -36,13 +39,13 @@ const Game = struct {
 };
 
 pub fn main() !void {
-    var splits = mem.tokenizeSequence(u8, file, "\n");
+    var splits = mem.splitSequence(u8, file, "\n");
     var part1_sum: u32 = 0;
     while (splits.next()) |line| {
-        var parts = mem.tokenizeSequence(u8, line, ": ");
+        var parts = mem.splitSequence(u8, line, ": ");
         const id = fmt.parseInt(u16, parts.next().?[5..], 10) catch 0;
-        var games = mem.tokenizeSequence(u8, parts.next().?, "; ");
-        var possible = true;
+        var games = mem.splitSequence(u8, parts.next().?, "; ");
+        var possible: bool = true;
         while (games.next()) |game| {
             const g = try Game.parse(game);
             if (!g.is_possible()) {
