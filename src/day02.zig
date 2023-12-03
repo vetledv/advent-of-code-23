@@ -33,11 +33,21 @@ const Game = struct {
         }
         return game;
     }
+
+    fn max(self: *Self, s: Self) void {
+        self.r = if (self.r > s.r) self.r else s.r;
+        self.g = if (self.g > s.g) self.g else s.g;
+        self.b = if (self.b > s.b) self.b else s.b;
+    }
+    fn power(self: Self) u32 {
+        return self.r * self.g * self.b;
+    }
 };
 
 pub fn main() !void {
     var splits = mem.splitSequence(u8, file, "\n");
     var part1_sum: u32 = 0;
+    var part2_sum: u32 = 0;
     while (splits.next()) |line| {
         var _line = line;
         //kill me, delete windows
@@ -47,9 +57,13 @@ pub fn main() !void {
         var parts = mem.splitSequence(u8, _line, ": ");
         const id = fmt.parseInt(u16, parts.next().?[5..], 10) catch 0;
         var games = mem.splitSequence(u8, parts.next().?, "; ");
+
         var possible: bool = true;
+        var mg = Game{ .r = 0, .b = 0, .g = 0 };
+
         while (games.next()) |game| {
             const g = try Game.parse(game);
+            mg.max(g);
             if (!g.is_possible()) {
                 possible = false;
             }
@@ -57,7 +71,9 @@ pub fn main() !void {
         if (possible) {
             part1_sum += id;
         }
+        part2_sum += mg.power();
     }
     dprint("day 02\n", .{});
     dprint("\t1: {d}\n", .{part1_sum});
+    dprint("\t2: {d}\n", .{part2_sum});
 }
