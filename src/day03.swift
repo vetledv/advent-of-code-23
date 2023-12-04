@@ -68,15 +68,15 @@ func part1(_ input: [String]) -> Int {
 }
 
 func part2(_ input: [String]) -> Int {
-    var result = 0
     let (numbers, symbols) = parse(input) { $0 == "*" }
-    symbols.forEach { s in
+    let result = symbols.compactMap { s in
         let neighbours = numbers.filter { $0.positions.contains(s) }
         if neighbours.count == 2, let first = neighbours.first, let last = neighbours.dropFirst().first {
-            result += first.num.toInt() * last.num.toInt()
+            return first.num.toInt() * last.num.toInt()
         }
+        return nil
     }
-    return result
+    return result.reduce(0) { $0 + $1 }
 }
 
 struct Day03 {
