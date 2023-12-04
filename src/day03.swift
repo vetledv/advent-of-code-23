@@ -31,13 +31,19 @@ extension Pos {
     }
 }
 
-func parse(_ input: [String]) -> (Set<NumPos>, Set<Pos>) {
+extension Array where Element == Character {
+    func toInt() -> Int {
+        guard let int = Int(String(self)) else { fatalError() }
+        return int
+    }
+}
+
+func parse(_ input: [String], symbol: (Character) -> Bool) -> (Set<NumPos>, Set<Pos>) {
     var numbers = Set<NumPos>()
     var symbols = Set<Pos>()
     var currentNumPos = NumPos()
-
-    input.enumerated().forEach { y, el in
-        el.enumerated().forEach { x, char in
+    input.enumerated().forEach { y, line in
+        line.enumerated().forEach { x, char in
             if char.isNumber {
                 currentNumPos.num.append(char)
                 currentNumPos.positions.formUnion(Pos(x, y).neighbours())
@@ -47,7 +53,7 @@ func parse(_ input: [String]) -> (Set<NumPos>, Set<Pos>) {
                 numbers.insert(currentNumPos)
                 currentNumPos = NumPos()
             }
-            if char != "." {
+            if symbol(char) {
                 symbols.insert(Pos(x: x, y: y))
             }
         }
@@ -56,14 +62,21 @@ func parse(_ input: [String]) -> (Set<NumPos>, Set<Pos>) {
 }
 
 func part1(_ input: [String]) -> Int {
-    let (numbers, symbols) = parse(input)
-    let filtered = numbers.filter { n in
-        n.positions.intersection(symbols).isEmpty == false
+    let (numbers, symbols) = parse(input) { $0 != "." }
+    let filtered = numbers.filter { $0.positions.intersection(symbols).isEmpty == false }
+    return filtered.reduce(0) { $0 + $1.num.toInt() }
+}
+
+func part2(_ input: [String]) -> Int {
+    var result = 0
+    let (numbers, symbols) = parse(input) { $0 == "*" }
+    symbols.forEach { s in
+        let neighbours = numbers.filter { $0.positions.contains(s) }
+        if neighbours.count == 2, let first = neighbours.first, let last = neighbours.dropFirst().first {
+            result += first.num.toInt() * last.num.toInt()
+        }
     }
-    return filtered.reduce(0) { res, num in
-        guard let int = Int(String(num.num)) else { fatalError("Num? \(num)") }
-        return res + int
-    }
+    return result
 }
 
 struct Day03 {
@@ -71,13 +84,16 @@ struct Day03 {
         guard let inputString = try? loadData(03) else { fatalError() }
         self.input = inputString.components(separatedBy: "\n")
         self.partOneSum = part1(input)
+        self.partTwoSum = part2(input)
     }
 
     var input: [String]
     var partOneSum: Int
+    var partTwoSum: Int
 
     func printAnswers() {
         print("day03")
         print("1: \(partOneSum)")
+        print("2: \(partTwoSum)")
     }
 }
